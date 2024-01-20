@@ -10,3 +10,9 @@ Projet réalisé avec
 - p5.js
 
 
+
+# Instructions
+
+- Space bar -> Generate new Map
+- Right Arrow -> Next iteration
+
