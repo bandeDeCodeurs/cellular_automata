@@ -1,7 +1,7 @@
 function setup() {
 
-    WIDTH = 1500;
-    HEIGHT = 830;
+    WIDTH = 1800;
+    HEIGHT = 950;
     TILE_SIZE = 10;
     map = [];
     THRESHOLD = 4;
@@ -9,11 +9,73 @@ function setup() {
     createCanvas(WIDTH, HEIGHT);
     generateMap();
     drawMap();
-    //print(getNeighbours(0,0));
+    generateBorders();
 }
 
 function draw() {
 
+}
+
+function generateBorders() {
+
+    for (let cx=0;cx<WIDTH/TILE_SIZE;cx++) {
+        for (let cy=0;cy<HEIGHT/TILE_SIZE;cy++) {
+            //If that's a land/wall
+            if (map[cx][cy] == 0) {
+                //we take four neigbours
+                north = {dir:"north", x:cx, y:cy-1};
+                east  = {dir:"east", x:cx+1, y:cy};
+                south = {dir:"south", x:cx, y:cy+1};
+                west  = {dir:"west", x:cx-1, y:cy};
+
+                neighbours = [north, east, south, west];
+
+                neighbours.forEach(n => {
+                    
+                    //we only want a neighbour in the map and a water one
+                    if (n.x != -1 && 
+                        n.y != -1 && 
+                        n.x != WIDTH/TILE_SIZE && 
+                        n.y != HEIGHT/TILE_SIZE && 
+                        map[n.x][n.y] == 1
+                        ) {
+
+                        traceBorder(cx, cy, n.dir);
+                    }
+                });
+            }
+        }
+    }
+}
+
+function traceBorder(x, y, dir) {
+
+    switch(dir) {
+
+        case "north" : {
+            p1 = {x:x*TILE_SIZE, y:y*TILE_SIZE};
+            p2 = {x:x*TILE_SIZE + TILE_SIZE, y:y*TILE_SIZE};
+        }
+        break;
+        case "east" : {
+            p1 = {x:x*TILE_SIZE + TILE_SIZE, y:y*TILE_SIZE};
+            p2 = {x:x*TILE_SIZE + TILE_SIZE, y:y*TILE_SIZE + TILE_SIZE};
+        }
+        break;
+        case "south" : {
+            p1 = {x:x*TILE_SIZE, y:y*TILE_SIZE + TILE_SIZE};
+            p2 = {x:x*TILE_SIZE + TILE_SIZE, y:y*TILE_SIZE + TILE_SIZE};
+        }
+        break;
+        case "west" : {
+            p1 = {x:x*TILE_SIZE, y:y*TILE_SIZE};
+            p2 = {x:x*TILE_SIZE, y:y*TILE_SIZE + TILE_SIZE};
+        }
+        break;
+    }
+
+    stroke("#7f5430");
+    line(p1.x, p1.y, p2.x, p2.y);
 }
 
 function generateMap(density=.5) {
@@ -37,6 +99,7 @@ function drawMap() {
                 fill(206, 136, 78);
             else
                 fill(36, 134, 214);
+            
             rect(x*TILE_SIZE,y*TILE_SIZE,TILE_SIZE,TILE_SIZE);
         }
     }
@@ -87,11 +150,13 @@ function keyReleased() {
         
         generateMap();
         drawMap();
+        generateBorders();
     }
 
     if (keyCode === RIGHT_ARROW) {
 
         iterateMap();
         drawMap();
-    }
+        generateBorders();
+    }  
 }
